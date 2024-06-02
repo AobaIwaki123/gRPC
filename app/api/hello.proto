@@ -10,7 +10,7 @@ package myapp;
 // Define Service
 service GreetingService {
     // Define Method of Service
-    rpc Hello (HelloRequest) returns (HelloResponse);
+    rpc Hello (HelloRequest) returns (stream HelloResponse);
 }
 
 // Define Types
