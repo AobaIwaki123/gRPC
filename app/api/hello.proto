@@ -1,0 +1,23 @@
+// Declare proto Version
+syntax = "proto3";
+
+// Auto generated Files Path
+option go_package = "pkg/grpc";
+
+// Declare package
+package myapp;
+
+// Define Service
+service GreetingService {
+    // Define Method of Service
+    rpc Hello (HelloRequest) returns (HelloResponse);
+}
+
+// Define Types
+message HelloRequest {
+    string name = 1;
+}
+
+message HelloResponse {
+    string message = 1;
+}
