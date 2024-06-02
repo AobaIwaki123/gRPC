@@ -1,0 +1,8 @@
+services:
+  go-grpc:
+    container_name: go-grpc
+    build:
+      context: ./app
+    volumes:
+      - ./app:/usr/src/app
+    tty: true
