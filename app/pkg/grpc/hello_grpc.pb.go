@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreetingServiceClient interface {
 	// Define Method of Service
+	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 	HelloServerStream(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloServerStreamClient, error)
 }
 
@@ -28,6 +29,15 @@ type greetingServiceClient struct {
 
 func NewGreetingServiceClient(cc grpc.ClientConnInterface) GreetingServiceClient {
 	return &greetingServiceClient{cc}
+}
+
+func (c *greetingServiceClient) Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+	out := new(HelloResponse)
+	err := c.cc.Invoke(ctx, "/myapp.GreetingService/Hello", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *greetingServiceClient) HelloServerStream(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloServerStreamClient, error) {
@@ -67,6 +77,7 @@ func (x *greetingServiceHelloServerStreamClient) Recv() (*HelloResponse, error) 
 // for forward compatibility
 type GreetingServiceServer interface {
 	// Define Method of Service
+	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
 	HelloServerStream(*HelloRequest, GreetingService_HelloServerStreamServer) error
 	mustEmbedUnimplementedGreetingServiceServer()
 }
@@ -75,6 +86,9 @@ type GreetingServiceServer interface {
 type UnimplementedGreetingServiceServer struct {
 }
 
+func (UnimplementedGreetingServiceServer) Hello(context.Context, *HelloRequest) (*HelloResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
+}
 func (UnimplementedGreetingServiceServer) HelloServerStream(*HelloRequest, GreetingService_HelloServerStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method HelloServerStream not implemented")
 }
@@ -89,6 +103,24 @@ type UnsafeGreetingServiceServer interface {
 
 func RegisterGreetingServiceServer(s grpc.ServiceRegistrar, srv GreetingServiceServer) {
 	s.RegisterService(&GreetingService_ServiceDesc, srv)
+}
+
+func _GreetingService_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreetingServiceServer).Hello(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/myapp.GreetingService/Hello",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreetingServiceServer).Hello(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _GreetingService_HelloServerStream_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -118,7 +150,12 @@ func (x *greetingServiceHelloServerStreamServer) Send(m *HelloResponse) error {
 var GreetingService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "myapp.GreetingService",
 	HandlerType: (*GreetingServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Hello",
+			Handler:    _GreetingService_Hello_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "HelloServerStream",
