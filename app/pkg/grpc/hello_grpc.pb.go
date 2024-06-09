@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreetingServiceClient interface {
 	// Define Method of Service
-	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloClient, error)
+	HelloServerStream(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloServerStreamClient, error)
 }
 
 type greetingServiceClient struct {
@@ -30,12 +30,12 @@ func NewGreetingServiceClient(cc grpc.ClientConnInterface) GreetingServiceClient
 	return &greetingServiceClient{cc}
 }
 
-func (c *greetingServiceClient) Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloClient, error) {
-	stream, err := c.cc.NewStream(ctx, &GreetingService_ServiceDesc.Streams[0], "/myapp.GreetingService/Hello", opts...)
+func (c *greetingServiceClient) HelloServerStream(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (GreetingService_HelloServerStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GreetingService_ServiceDesc.Streams[0], "/myapp.GreetingService/HelloServerStream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &greetingServiceHelloClient{stream}
+	x := &greetingServiceHelloServerStreamClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -45,16 +45,16 @@ func (c *greetingServiceClient) Hello(ctx context.Context, in *HelloRequest, opt
 	return x, nil
 }
 
-type GreetingService_HelloClient interface {
+type GreetingService_HelloServerStreamClient interface {
 	Recv() (*HelloResponse, error)
 	grpc.ClientStream
 }
 
-type greetingServiceHelloClient struct {
+type greetingServiceHelloServerStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *greetingServiceHelloClient) Recv() (*HelloResponse, error) {
+func (x *greetingServiceHelloServerStreamClient) Recv() (*HelloResponse, error) {
 	m := new(HelloResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (x *greetingServiceHelloClient) Recv() (*HelloResponse, error) {
 // for forward compatibility
 type GreetingServiceServer interface {
 	// Define Method of Service
-	Hello(*HelloRequest, GreetingService_HelloServer) error
+	HelloServerStream(*HelloRequest, GreetingService_HelloServerStreamServer) error
 	mustEmbedUnimplementedGreetingServiceServer()
 }
 
@@ -75,8 +75,8 @@ type GreetingServiceServer interface {
 type UnimplementedGreetingServiceServer struct {
 }
 
-func (UnimplementedGreetingServiceServer) Hello(*HelloRequest, GreetingService_HelloServer) error {
-	return status.Errorf(codes.Unimplemented, "method Hello not implemented")
+func (UnimplementedGreetingServiceServer) HelloServerStream(*HelloRequest, GreetingService_HelloServerStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method HelloServerStream not implemented")
 }
 func (UnimplementedGreetingServiceServer) mustEmbedUnimplementedGreetingServiceServer() {}
 
@@ -91,24 +91,24 @@ func RegisterGreetingServiceServer(s grpc.ServiceRegistrar, srv GreetingServiceS
 	s.RegisterService(&GreetingService_ServiceDesc, srv)
 }
 
-func _GreetingService_Hello_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _GreetingService_HelloServerStream_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(HelloRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(GreetingServiceServer).Hello(m, &greetingServiceHelloServer{stream})
+	return srv.(GreetingServiceServer).HelloServerStream(m, &greetingServiceHelloServerStreamServer{stream})
 }
 
-type GreetingService_HelloServer interface {
+type GreetingService_HelloServerStreamServer interface {
 	Send(*HelloResponse) error
 	grpc.ServerStream
 }
 
-type greetingServiceHelloServer struct {
+type greetingServiceHelloServerStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *greetingServiceHelloServer) Send(m *HelloResponse) error {
+func (x *greetingServiceHelloServerStreamServer) Send(m *HelloResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -121,8 +121,8 @@ var GreetingService_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Hello",
-			Handler:       _GreetingService_Hello_Handler,
+			StreamName:    "HelloServerStream",
+			Handler:       _GreetingService_HelloServerStream_Handler,
 			ServerStreams: true,
 		},
 	},
