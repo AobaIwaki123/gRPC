@@ -11,3 +11,7 @@
 # grpc.reflection.v1alpha.ServerReflection
 # myapp.GreetingService
 ```
+
+## 参考
+
+- [作ってわかる！ はじめてのgRPC](https://zenn.dev/hsaki/books/golang-grpc-starting)
