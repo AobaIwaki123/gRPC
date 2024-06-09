@@ -6,5 +6,5 @@ RUN apt-get update && apt-get install -y protobuf-compiler && \
 
 WORKDIR /usr/src/app
 
-# COPY go.mod go.sum ./
-# RUN go mod download && go mod verify
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
