@@ -89,8 +89,10 @@ func main() {
 
 	// Create gRPC Server
 	s := grpc.NewServer(
-		// grpc.UnaryInterceptor(myUnaryServerInterceptor1),
-		grpc.StreamInterceptor(myStreamServerInterceptor1),
+		grpc.ChainStreamInterceptor(
+			myStreamServerInterceptor1,
+			myStreamServerInterceptor2,
+		),
 	)
 
 	// Register GreetingService in gRPC Server
