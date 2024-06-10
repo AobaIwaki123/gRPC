@@ -14,4 +14,4 @@
 
 ## 参考
 
-- [作ってわかる！ はじめてのgRPC](https://zenn.dev/hsaki/books/golang-grpc-starting)
+- [作ってわかる！ はじめてのgRPC - Zenn](https://zenn.dev/hsaki/books/golang-grpc-starting)
