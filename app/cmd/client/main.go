@@ -31,9 +31,9 @@ func main() {
 	address := "go-grpc:8080"
 	conn, err := grpc.NewClient(
 		address,
+		grpc.WithUnaryInterceptor(myUnaryClientInterceptor1),
 
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		// grpc.WithBlock(), // Deprecated Feature
 	)
 	if err != nil {
 		log.Fatal("Connection failed.")
