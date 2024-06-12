@@ -1,5 +1,7 @@
 # gRPC
 
+[TOC]
+
 ## Getting Started: gRPCサーバーの起動と起動確認方法
 
 ```sh
@@ -62,6 +64,20 @@ poka
 Hello, poka
 ```
 
+## ゴールーチンセーフなgRPCの実装
+
+### Client
+
+- 同一のコネクションを用いて異なるゴールーチンから異なるサービスを扱うのはゴールーチンセーフ
+
+### Stream
+
+- 異なるゴールーチンから同一のストリームに対して、`SendMsg`または`RecvMsg`を複数回呼び出すのはゴールーチンセーフではない
+- 但し、ゴールーチンAから`SendMsg`を呼び出し、ゴールーチンBから`RecvMsg`を呼び出すというようなケースはゴールーチンセーフ
+
 ## 参考
 
 - [作ってわかる！ はじめてのgRPC - Zenn](https://zenn.dev/hsaki/books/golang-grpc-starting)
+- [Concurrency - grpc-go Documentation](https://github.com/grpc/grpc-go/blob/master/Documentation/concurrency.md)
+  - コネクションやストリームをごゴールーチンセーフに書くための公式ドキュメント(必読)
+- [Application Load Balancer が、gRPC ワークロードをエンドツーエンドの HTTP/2 サポート対象に - AWS Blog](https://aws.amazon.com/jp/about-aws/whats-new/2020/10/application-load-balancers-enable-grpc-workloads-end-to-end-http-2-support/)
