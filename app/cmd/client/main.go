@@ -10,10 +10,10 @@ import (
 	hellopb "mygrpc/pkg/grpc"
 	"os"
 
+	_ "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	_ "google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 var (
@@ -31,7 +31,7 @@ func main() {
 	address := "go-grpc:8080"
 	conn, err := grpc.NewClient(
 		address,
-		grpc.WithUnaryInterceptor(myUnaryClientInterceptor1),
+		grpc.WithStreamInterceptor(myStreamClientInterceptor1),
 
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
